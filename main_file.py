@@ -10,6 +10,7 @@ class Display:
     def __init__(self, master):
         master.geometry("1000x600")
         master.title("Polynomial GCD")
+        # master.iconbitmap("D:/Python and Java/DM/Discrete_Mathematics/Poly.ico")
         master.config(bg="white")
         self.root = master
         self.displaynames()
@@ -306,7 +307,7 @@ def backend_control(root, frame, canvas, dividend, divisor):
     canvas.update()
     gcd = lis[len(lis) - 1]["divisor"].string_convert()
     for i in lis2:
-        st = gcd + " = (" + i["dividend"].string_convert() + ") * (" + i["poly_1"].string_convert() + ") + (" \
+        st = gcd + " = (" + i["poly_1"].string_convert() + ") * (" + i["dividend"].string_convert() + ") + (" \
              + i["poly_2"].string_convert() + ") * (" + i["divisor"].string_convert() + ")"
         root.dis_bez(canvas, st)
         root.frame_line_display += 10
