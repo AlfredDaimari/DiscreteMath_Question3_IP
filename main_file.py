@@ -258,8 +258,8 @@ def extended_euclid(lis, lis2, j):  # Function to find the Bezout's coefficients
         return lis2
     poly_1 = Polynomial("+1x^0")
     poly_2 = Polynomial("+0x^0").pol_subtract(lis[j]["quotient"])
-    lst_poly_1 = lis2[j]["poly_1"]
-    lst_poly_2 = lis2[j]["poly_2"]
+    lst_poly_1 = lis2[len(lis2)-1]["poly_1"]
+    lst_poly_2 = lis2[len(lis2)-1]["poly_2"]
     poly_1 = poly_1.pol_multiplication(lst_poly_2)
     poly_2 = lst_poly_1.pol_add(poly_2.pol_multiplication(lst_poly_2))
     lis2 += [{"poly_1": poly_1, "poly_2": poly_2, "divisor": lis[j]["divisor"], "dividend": lis[j]["dividend"]}]
