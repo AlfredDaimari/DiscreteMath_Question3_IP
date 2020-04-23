@@ -322,6 +322,7 @@ def backend_control(root, frame, canvas, dividend, divisor):
     canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "normal"), fill="black",
                        text="b(x) ="+lis2[len(lis2)-1]['poly_2'].string_convert(), anchor=NW)
     canvas.update()
+    canvas.config(scrollregion=(0, 0, 1000, root.frame_line_display + 100))
     root.restart(frame)
 
 
