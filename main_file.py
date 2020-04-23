@@ -5,17 +5,16 @@ from copy import deepcopy
 
 # Class below uses tkinter to display polynomial output
 class Display:
-    frame_line_display = 150
 
     def __init__(self, master):
         master.geometry("1000x600")
         master.title("Polynomial GCD")
-        # master.iconbitmap("D:/Python and Java/DM/Discrete_Mathematics/Poly.ico")
         master.config(bg="white")
         self.root = master
-        self.displaynames()
+        self.frame_line_display = 150
+        self.display_names()
 
-    def displaynames(self):
+    def display_names(self):
         frame = Frame(self.root, height=600, width=1000, bg="white", relief=GROOVE, highlightbackground="slategray",
                       highlightthickness=4)
         frame.pack(side=LEFT)
@@ -31,9 +30,9 @@ class Display:
         frame.update()
         sleep(3)
         frame.destroy()
-        self.inputdisplay()
+        self.input_display()
 
-    def inputdisplay(self):
+    def input_display(self):
         frame = Frame(self.root, height=600, width=1000, bg="white", relief=GROOVE, highlightbackground="slategray",
                       highlightthickness=4)
         ask_label = Label(frame, font=("Comic Sans MS", 17, "bold italic"), bg="white", fg="darkcyan",
@@ -50,7 +49,7 @@ class Display:
             div_str = div.get()
             divisor_str = divisor.get()
             frame.destroy()
-            self.finaldisplay(div_str, divisor_str)
+            self.final_display(div_str, divisor_str)
 
         calc = Button(frame, font=("Comic Sans MS", 15, "bold"), text="Calculate", command=calculate,
                       activebackground="ghostwhite", bg="gainsboro", activeforeground="darkcyan", fg="darkcyan",
@@ -64,7 +63,7 @@ class Display:
         divisor_label.place(x=276, y=300)
         frame.pack()
 
-    def finaldisplay(self, dividend, divisor):
+    def final_display(self, dividend, divisor):
         frame = Frame(self.root, width=1000, height=600, highlightbackground="slategray", highlightthickness=4)
         canvas = Canvas(frame, bg="white", width=1000, height=540, scrollregion=(0, 0, 1000, 1300))
         scroll = Scrollbar(frame, orient=VERTICAL)
@@ -79,44 +78,41 @@ class Display:
         canvas.create_text(100, self.frame_line_display, text="Divisor: " + divisor,
                            font=("Comic Sans MS", 15, "bold italic"), fill="black", anchor=NW)
         self.frame_line_display += 150
-        canvas.create_text(500, self.frame_line_display, text="Calculating GCD",
-                           font=("Comic Sans MS", 18, "bold italic underline"), fill="darkcyan")
         canvas.pack()
         frame.pack()
         backend_control(self, frame, canvas, dividend, divisor)
 
-    def dis_div(self, st, canvas):  # The list sent has to have dividend, divisor, quotient and remainder in str form
-        length = len(st) // 100
+    def dis_final(self, canvas, st, div, line, size):  # Displaying bez coefficients and gcd
+        length = len(st) // div
         if length >= 1:
             for i in range(0, length + 1):
-                self.frame_line_display += 20
+                self.frame_line_display += line
                 canvas.create_text(50, self.frame_line_display,
-                                   text=st[i * 100: i * 100 + 100 if i * 100 + 100 < len(st) else len(st)],
-                                   font=("Cambria Math", 13, "normal"), fill="black", anchor=NW)
+                                   text=st[i * div: i * div + div if i * div + div < len(st) else len(st)],
+                                   font=("Cambria Math", size, "normal"), fill="black", anchor=NW)
         else:
-            self.frame_line_display += 20
+            self.frame_line_display += line
             canvas.create_text(50, self.frame_line_display, text=st, font=("Cambria Math", 13, "normal"), fill="black",
                                anchor=NW)
         canvas.update()
 
-    def dis_bez(self, canvas, st):
-        length = len(st) // 100
-        if length >= 1:
-            for i in range(0, length + 1):
-                self.frame_line_display += 20
-                canvas.create_text(50, self.frame_line_display,
-                                   text=st[i * 100: i * 100 + 100 if i * 100 + 100 < len(st) else len(st)],
-                                   font=("Cambria Math", 13, "normal"), fill="black", anchor=NW)
-        else:
-            self.frame_line_display += 20
-            canvas.create_text(50, self.frame_line_display, text=st, font=("Cambria Math", 13, "normal"), fill="black",
-                               anchor=NW)
+    def proof_display(self, canvas, poly_1, poly_2, dividend, divisor, gcd):
+        st1 = "(" + poly_1.pol_multiplication(dividend).string_convert() + ")"
+        st2 = "  + (" + poly_2.pol_multiplication(divisor).string_convert() + ")"
+        self.dis_final(canvas, st1, 100, 20, 13)
+        self.frame_line_display += 10
+        self.dis_final(canvas, st2, 100, 20, 13)
+        self.frame_line_display += 10
+        canvas.create_line(50, self.frame_line_display + 50, 900, self.frame_line_display + 50)
+        self.frame_line_display += 20
+        canvas.create_text(500, self.frame_line_display + 50, font=("Cambria Math", 14, "italic"), fill="darkcyan",
+                           text=gcd, anchor=CENTER)
 
     def restart(self, frame):
         def restart_bt():
             frame.destroy()
             self.frame_line_display = 150
-            self.inputdisplay()
+            self.input_display()
 
         frame.config(bg="darkcyan")
         rst_button = Button(frame, font=("Comic Sans MS", 15, "bold"), text="Restart", command=restart_bt,
@@ -228,15 +224,17 @@ class Polynomial:
         lis = divisor.pol_gcd(deepcopy(dividend), lis)
         j = len(lis)
         if j == 1:  # If this is the case, then the divisor is itself GCD
+            poly2 = dividend.pol_subtract(self)
+            poly2, a = self.pol_div(deepcopy(poly2), Polynomial())
+            poly2 = Polynomial("+0x^0").pol_subtract(poly2)
             lis2 += [
                 {"poly_1": Polynomial("+1x^0"), "dividend": lis[0]["dividend"], "divisor": lis[0]["divisor"],
-                 "poly_2": lis[0]["divisor"].pol_div
-                 (Polynomial("+0x^0").pol_subtract(lis[0]["dividend"].pol_subtract(lis[0]["divisor"])), Polynomial())}]
+                 "poly_2": poly2}]
         else:
             lis2 = [
                 {"poly_1": Polynomial("+1x^0"), "dividend": lis[j - 2]["dividend"], "divisor": lis[j - 2]["divisor"],
                  "poly_2": Polynomial("+0x^0").pol_subtract(lis[j - 2]["quotient"])}]
-            if j >= 2:
+            if j > 2:
                 lis2 = extended_euclid(lis, lis2, j - 3)
         return lis, lis2
 
@@ -258,8 +256,8 @@ def extended_euclid(lis, lis2, j):  # Function to find the Bezout's coefficients
         return lis2
     poly_1 = Polynomial("+1x^0")
     poly_2 = Polynomial("+0x^0").pol_subtract(lis[j]["quotient"])
-    lst_poly_1 = lis2[len(lis2)-1]["poly_1"]
-    lst_poly_2 = lis2[len(lis2)-1]["poly_2"]
+    lst_poly_1 = lis2[len(lis2) - 1]["poly_1"]
+    lst_poly_2 = lis2[len(lis2) - 1]["poly_2"]
     poly_1 = poly_1.pol_multiplication(lst_poly_2)
     poly_2 = lst_poly_1.pol_add(poly_2.pol_multiplication(lst_poly_2))
     lis2 += [{"poly_1": poly_1, "poly_2": poly_2, "divisor": lis[j]["divisor"], "dividend": lis[j]["dividend"]}]
@@ -293,34 +291,50 @@ def term_structure(term):  # Function that makes each term of polynomial have pr
 def backend_control(root, frame, canvas, dividend, divisor):
     dividend = Polynomial(dividend)
     divisor = Polynomial(divisor)
-    lis, lis2 = divisor.pol_gcd_and_extended_euclid(dividend)
+    # Case if dividend and divisor are equal
+    if dividend.coefficients == divisor.coefficients and divisor.power == dividend.power:
+        lis = [{"dividend": dividend, "divisor": divisor, "remainder": Polynomial("+0x^0"),
+                "quotient": Polynomial("+1x^0")}]
+        lis2 = [{"poly_1":Polynomial("+1x^0"), "poly_2": Polynomial("+0x^0"), "dividend": dividend, "divisor": divisor}]
+    else:
+        lis, lis2 = divisor.pol_gcd_and_extended_euclid(dividend)
+
+    canvas.create_text(500, root.frame_line_display, text="Calculating GCD",
+                       font=("Comic Sans MS", 18, "bold italic underline"), fill="darkcyan")
     for i in lis:
-        root.dis_div(i["dividend"].string_convert() + " = (" + i["divisor"].string_convert() + ") * ("
-                     + i["quotient"].string_convert() + ") + (" + i["remainder"].string_convert() + ")", canvas)
+        st = i["dividend"].string_convert() + " = (" + i["divisor"].string_convert() + ") * (" + \
+             i["quotient"].string_convert() + ") + (" + i["remainder"].string_convert() + ")"
+        root.dis_final(canvas, st, 100, 20, 13)
         root.frame_line_display += 10
+
+    gcd = lis[len(lis) - 1]["divisor"].string_convert()
     root.frame_line_display += 50
-    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "italic"), fill="black",
-                       text="Hence, the GCD is: " + lis[len(lis) - 1]["divisor"].string_convert(), anchor=NW)
+    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "italic"), fill="darkcyan",
+                       text="Hence, the GCD is: " + gcd, anchor=NW)
     root.frame_line_display += 150
     canvas.create_text(500, root.frame_line_display, font=("Comic Sans MS", 18, "bold italic underline"),
                        fill="darkcyan", text="Calculating Bezout's Coefficients")
     canvas.update()
-    gcd = lis[len(lis) - 1]["divisor"].string_convert()
+
     for i in lis2:
         st = gcd + " = (" + i["poly_1"].string_convert() + ") * (" + i["dividend"].string_convert() + ") + (" \
              + i["poly_2"].string_convert() + ") * (" + i["divisor"].string_convert() + ")"
-        root.dis_bez(canvas, st)
+        root.dis_final(canvas, st, 100, 20, 13)
         root.frame_line_display += 10
+    root.frame_line_display += 50
+    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "italic"), fill="darkcyan",
+                       text="Multiplying and adding the line above, we get,", anchor=NW)
+    root.frame_line_display += 30
+    root.proof_display(canvas, lis2[len(lis2) - 1]["poly_1"], lis2[len(lis2) - 1]["poly_2"], dividend, divisor, gcd)
 
     root.frame_line_display += 50
-    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "italic"), fill="black",
+    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "italic"), fill="darkcyan",
                        text="Hence, the Bezout's Coeffiecients, a(x) and b(x) are: ", anchor=NW)
-    root.frame_line_display += 25
-    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "normal"), fill="black",
-                       text="a(x) = "+lis2[len(lis2)-1]["poly_1"].string_convert(), anchor=NW)
-    root.frame_line_display += 25
-    canvas.create_text(50, root.frame_line_display, font=("Cambria Math", 14, "normal"), fill="black",
-                       text="b(x) ="+lis2[len(lis2)-1]['poly_2'].string_convert(), anchor=NW)
+    root.frame_line_display += 10
+    text = "a(x) = " + lis2[len(lis2) - 1]["poly_1"].string_convert()
+    root.dis_final(canvas, text, 100, 20, 13)
+    text = "b(x) =" + lis2[len(lis2) - 1]['poly_2'].string_convert()
+    root.dis_final(canvas, text, 100, 20, 13)
     canvas.update()
     canvas.config(scrollregion=(0, 0, 1000, root.frame_line_display + 100))
     root.restart(frame)
@@ -334,3 +348,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
