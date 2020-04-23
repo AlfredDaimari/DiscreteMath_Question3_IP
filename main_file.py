@@ -10,7 +10,6 @@ class Display:
     def __init__(self, master):
         master.geometry("1000x600")
         master.title("Polynomial GCD")
-        # master.iconbitmap("D:/Python and Java/DM/Discrete_Mathematics/Poly.ico")
         master.config(bg="white")
         self.root = master
         self.displaynames()
